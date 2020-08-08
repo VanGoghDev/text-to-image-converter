@@ -1,0 +1,114 @@
+﻿@{
+    ViewBag.Title = "About";
+}
+@Styles.Render("~/Content/index.css")
+
+<link href="~/Scripts/noUiSlider-14.6.0/distribute/nouislider.css" rel="stylesheet">
+<script src="~/Scripts/noUiSlider-14.6.0/distribute/nouislider.js"></script>
+
+<h1>Convert text to image</h1>
+
+<div id="app-6">
+  <div class="card-panel hoverable">
+    <div class="canvas">
+        <h2>{{ message }}</h2>
+      </div>
+  </div>
+  <input id="last_name" type="text" class="validate" v-model="message">
+  <label for="last_name">Type text here</label>
+
+  <div class="row">
+      <div class="col s1">
+          <a class="btn-floating btn-large waves-effect waves-light red" v-on:click="rangeInit"><i class="material-icons">format_size</i></a>
+      </div>
+      <div class="col s2">
+          <a class="btn-floating btn-large waves-effect waves-light red" id="color-picker" v-on:click="colorPickInit">
+              <i class="material-icons">format_color_text
+              </i>
+          </a>
+      </div>
+      <div class="col s4">
+          <a class="btn-floating btn-large waves-effect waves-light red"><i class="material-icons">add</i></a>
+      </div>
+  </div>
+  <div class="row">
+      <div class="col s4">
+          <div id="test-slider" v-on:mouseup="updateFontSize"></div>
+      </div>
+      <div class="col s1">
+          @* <input id="color-picker" v-on:change="updateColor"/> *@
+      </div>
+  </div>
+  
+  <div class="input-field col s6">
+    <a class="waves-effect waves-light btn" v-on:click="downloadImg">button</a>
+  </div>
+</div>
+
+<link href="~/Scripts/color-picker-master/color-picker.min.css" rel="stylesheet">
+<script src="~/Scripts/color-picker-master/color-picker.min.js"></script>
+
+@Scripts.Render("~/Scripts/dom-to-image/src/dom-to-image.js")
+@Scripts.Render("~/Scripts/file-saver/dist/FileSaver.js")
+
+<script>
+    var app6 = new Vue({
+    el: '#app-6',
+    data: {
+      message: '',
+      
+    },
+    methods: {
+      downloadImg: function() {
+    
+         var node = document.getElementsByClassName('canvas')[0] 
+          domtoimage.toBlob(node)
+              .then(function (blob) {
+                      window.saveAs(blob, 'my-node.png');
+              });
+      },
+      rangeInit: function() {
+          var slider = document.getElementById('test-slider');
+          if (slider.noUiSlider !== undefined)
+            slider.noUiSlider.destroy()
+          var fontSize = $("h2").css('font-size');
+          fontSize = parseInt(fontSize, 10);
+          noUiSlider.create(slider, {
+              start: [fontSize],
+              range: {
+                  'min': [0],
+                  'max': [100]
+              }
+          });
+      },
+      updateFontSize: function() {
+          var slider = document.getElementById('test-slider');
+          slider.noUiSlider.on('end', function() {
+              $("h2").css('font-size', `${slider.noUiSlider.get()}px`)
+          })
+      },
+      colorPickInit: function() {
+          var slider = document.getElementById('test-slider');
+          if (slider.noUiSlider !== undefined)
+            slider.noUiSlider.destroy()
+      },
+      updateColor: function() {
+          alert("sdf")
+      }
+    }
+    })
+    let picker = new CP(document.getElementById('color-picker'));
+    picker.on('change', function(r, g, b, a) {
+        var slider = document.getElementById('test-slider');
+                  if (slider.noUiSlider !== undefined)
+                    slider.noUiSlider.destroy()
+        var color
+        if (1 === a) {
+            color = 'rgb(' + r + ', ' + g + ', ' + b + ')';
+        } else {
+            color = 'rgba(' + r + ', ' + g + ', ' + b + ', ' + a + ')';
+        }
+         $("h2").css('color', color)
+    });
+ 
+</script>
